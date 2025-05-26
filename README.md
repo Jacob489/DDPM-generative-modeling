@@ -1,4 +1,4 @@
-# Galaxy Morphology Generation with Continuous Redshift-# Galaxy Morphology Generation with Continuous Redshift-Conditioned DDPMs
+# Galaxy Morphology Generation with Continuous Redshift-Conditioned DDPMs
 
 A breakthrough implementation of Denoising Diffusion Probabilistic Models (DDPMs) that generates scientifically accurate galaxy images across cosmic time, establishing a direct link between galaxy morphology and redshift using continuous conditioning—the first systematic evaluation of continuous galaxy evolution with DDPMs.
 
@@ -230,7 +230,7 @@ This project uses the **Hyper Suprime-Cam Galaxy Dataset** curated by Do et al.,
 - **Depth**: r-band depth of ~26.5 AB magnitudes
 - **Redshift Range**: z=0 to z=4 (92.8% have z<1.5)
 
-**Access**: [HSC Galaxy Dataset on Zenodo](https://zenodo.org/records/11117528) (CC-BY 4.0 License)
+**Access**: [GalaxiesML Dataset on Zenodo](https://zenodo.org/records/11117528) (CC-BY 4.0 License)
 
 ---
 
