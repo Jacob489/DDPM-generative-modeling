@@ -1,6 +1,6 @@
-# Galaxy Morphology Generation with Continuous Redshift-Conditioned DDPMs
+# Galaxy Morphology Generation with Continuous Redshift-# Galaxy Morphology Generation with Continuous Redshift-Conditioned DDPMs
 
-A breakthrough implementation of Denoising Diffusion Probabilistic Models (DDPMs) that generates scientifically accurate galaxy images across cosmic time, establishing the first direct computational link between galaxy morphology and redshift through deep learning.
+A breakthrough implementation of Denoising Diffusion Probabilistic Models (DDPMs) that generates scientifically accurate galaxy images across cosmic time, establishing a direct link between galaxy morphology and redshift using continuous conditioning—the first systematic evaluation of continuous galaxy evolution with DDPMs.
 
 ## 🌟 Project Overview
 
@@ -20,8 +20,9 @@ Our model learns the conditional distribution p(X|z) of 5-band galaxy images giv
 **Core Innovation**: Unlike previous approaches that discretize redshift (losing evolutionary information), we integrate continuous redshift directly into the DDPM framework with Gaussian perturbation for smooth interpolation.
 
 ```python
-# Training: Add noise to redshift for interpolation
-z_perturbed = z + N(0, σ²)  # σ = 0.01
+# Training: Redshift conditioning with label noise for robustness
+labels += torch.randn_like(labels) * 0.01  # Small noise addition
+labels = torch.clamp(labels, 0, 4)
 
 # Forward diffusion process  
 q(X_t|X_{t-1}) = N(X_t; √(1-β_t)X_{t-1}, β_t I)
@@ -60,7 +61,7 @@ class UNet_conditional_conv(nn.Module):
 
 **Diffusion Process**:
 - **Noise Schedule**: Linear β from 1e-4 to 0.02 over 1000 timesteps
-- **Loss Function**: Huber Loss for robustness to astronomical outliers
+- **Loss Function**: Huber Loss (smooth_l1_loss) for robustness to astronomical outliers
 - **Optimizer**: AdamW with lr=5e-5, gradient clipping (max_norm=1.0)
 - **Batch Size**: 128 on single NVIDIA A6000 GPU
 
@@ -97,22 +98,22 @@ redshifts = torch.linspace(0.1, 4.0, 20)
 evolution_sequence = diffusion.sample(model, len(redshifts), redshifts)
 ```
 
-**Applications**:
-- Visualize individual galaxy type evolution (spiral → elliptical transitions)
-- Study size-mass relations across redshift
-- Investigate color-magnitude diagram evolution
+**Demonstrated capabilities**:
+- Learn morphological properties without explicit supervision
+- Generate galaxies with realistic physical characteristics at any redshift
+- Capture redshift-dependent trends in ellipticity, size, and brightness profiles
 
-### 2. Cosmological Simulations
-**Create realistic mock catalogs** for large-scale structure studies:
-- Generate millions of galaxies with proper morphological distributions
-- Test photometric pipeline algorithms before expensive observations
-- Model selection effects and observational biases
+### 2. Astrophysical Research
+**Validate morphology-redshift relationships**:
+- Test theoretical predictions about galaxy evolution
+- Study morphological parameter distributions across cosmic time
+- Investigate correlations between redshift and structural properties
 
-### 3. Next-Generation Survey Preparation
-**Prepare for LSST, Euclid, Roman telescopes**:
-- Train photometric redshift estimators on augmented datasets
-- Develop morphology-based classification algorithms
-- Optimize survey strategies and observing parameters
+### 3. Machine Learning Applications  
+**Data augmentation and algorithm development**:
+- Generate synthetic training data for photometric redshift estimation
+- Test morphological analysis algorithms on controlled datasets
+- Validate image processing pipelines with known ground truth
 
 ## 📊 Evaluation & Validation
 
@@ -152,6 +153,8 @@ def analyze_image_with_sep(image, redshift):
 | Sérsic Index | 0.93 |
 | Isophotal Area | 0.90 |
 | **FID Score** | **14.2** |
+
+> **Note**: Results shown are from optimized parameters as reported in the research paper. All evaluation parameters are configurable in the provided notebooks.
 
 **Benchmark Comparison**:
 - **vs Discrete DDPM**: ~2x better morphological accuracy (e.g., ellipticity: 0.98 vs 0.45)
@@ -193,23 +196,41 @@ galaxies_display = denormalize_images(generated_galaxies)
 - **Scalability**: Efficient batch processing for mock catalog generation
 - **Memory Optimization**: HDF5 streaming, gradient checkpointing
 
-## 🎯 Research Impact & Future Work
+## 🎯 Future Research Directions
 
-### Immediate Applications
-- **Enhanced Photometric Redshifts**: Incorporate morphology for improved distance estimates
-- **ML Training Augmentation**: Expand limited spectroscopic datasets
-- **Survey Optimization**: Design next-generation telescope observing strategies
+Future work should focus on:
 
-### Technical Extensions
-- **Higher Resolution**: Scale to 256×256 for detailed substructure
-- **Environmental Conditioning**: Add galaxy density and cluster membership
-- **Multi-wavelength**: Extend to radio, X-ray observations
-- **3D Structure**: Volumetric galaxy modeling with depth information
+### Physics Validation
+- **Star Formation Rate Evolution**: Test if generated galaxies reproduce observed star formation rate density evolution across redshift
+- **Galaxy Merger Physics**: Apply more stringent tests for physical changes through galaxy merger processes
+- **Direct Physics Learning**: Extend approach toward models that can learn the physical evolution of galaxies more directly
 
-### Scientific Frontiers
-- **Physics Discovery**: Identify unknown morphology-redshift correlations
-- **Cosmological Constraints**: Use galaxy evolution for dark matter/energy studies
-- **Multi-messenger Astronomy**: Connect morphology to gravitational wave sources
+### Dynamic Visualization
+- **Evolutionary Trajectories**: Leverage DDPM's ability to interpolate between probability distribution modes for dynamic visualizations of galaxy evolution as a function of redshift
+- **Cosmic Time Sequences**: Create continuous evolutionary sequences serving as a powerful tool for studying galaxy formation across cosmic timescales
+
+## 📄 Research Paper
+
+This implementation is based on research submitted to NeurIPS 2025. The paper demonstrates that continuous redshift conditioning enables DDPMs to implicitly learn complex morphological properties of galaxies without explicit supervision.
+
+**Key Findings**:
+- First direct link established between galaxy morphology and redshift using continuous conditioning
+- Generated galaxies maintain >90% statistical accuracy with real morphological distributions
+- Continuous conditioning significantly outperforms discrete redshift binning approaches
+
+*ArXiv link will be available upon publication*
+
+## 📊 Dataset
+
+This project uses the **Hyper Suprime-Cam Galaxy Dataset** curated by Do et al., containing 286,401 galaxies with spectroscopic redshifts spanning z=0 to z=4.
+
+**Dataset Details**:
+- **Source**: HSC Survey - deepest completed wide-field survey
+- **Coverage**: 5 optical bands (g, r, i, z, y) at 64×64 pixel resolution  
+- **Depth**: r-band depth of ~26.5 AB magnitudes
+- **Redshift Range**: z=0 to z=4 (92.8% have z<1.5)
+
+**Access**: [HSC Galaxy Dataset on Zenodo](https://zenodo.org/records/11117528) (CC-BY 4.0 License)
 
 ---
 
